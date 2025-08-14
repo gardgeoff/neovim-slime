@@ -134,11 +134,8 @@ function M.setup(opts)
 	hi("RainbowDelimiterBlue", { fg = "#E0BA7D" })
 
 	-- Neo-tree custom colors
-	hi("NeoTreeDirectoryName", { fg = P.kw_decl, bold = true })
-	hi("NeoTreeDirectoryIcon", { fg = P.kw_decl })
-	hi("NeoTreeFolderName", { fg = P.kw_decl, bold = true })
-	hi("NeoTreeRootName", { fg = P.kw_decl, bold = true })
-	hi("NeoTreeSymbolicLinkTarget", { fg = P.string })
+	hi("NeoTreeNormal", { fg = P.fg, bg = P.bg })
+	hi("NeoTreeNormalNC", { fg = P.fg, bg = P.bg })
 
 	vim.g.colors_name = "slime"
 end

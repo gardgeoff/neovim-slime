@@ -73,6 +73,8 @@ function M.setup(opts)
 	hi("@punctuation", ts(P.punct_op))
 	hi("@punctuation.bracket", ts(P.punct_op))
 	hi("@punctuation.delimiter", ts(P.punct_op))
+	-- highlight constants
+	hi("@constant", ts(P.string))
 
 	-- Keywords
 	hi("@keyword", ts(P.kw_ctrl))
@@ -91,7 +93,7 @@ function M.setup(opts)
 	hi("@type.builtin", ts(P.type, { italic = true }))
 	hi("@property", ts(P.property))
 	hi("@field", ts(P.property))
-	hi("@variable", ts(P.fg))
+	hi("@variable", ts(P.number))
 	hi("@variable.parameter", ts(P.fg, { italic = true }))
 
 	-- LSP semantic tokens
@@ -115,7 +117,7 @@ function M.setup(opts)
 	hi("@type.php", ts(P.type))
 	hi("@variable.parameter.php", ts(P.fg, { italic = true }))
 
-	-- Blade (treat directives like control keywords)
+	-- -- Blade (treat directives like control keywords)
 	hi("@keyword.blade", ts(P.kw_ctrl))
 	hi("@keyword.directive.blade", ts(P.kw_ctrl, { bold = true }))
 	hi("@function.blade", ts(P.func))
@@ -137,9 +139,30 @@ function M.setup(opts)
 	hi("NeoTreeDirectoryName", { fg = P.kw_decl, bg = P.bg, bold = true })
 	hi("NeoTreeDirectoryIcon", { fg = P.kw_decl, bg = P.bg })
 	hi("NeoTreeWinSeparator", { fg = P.line, bg = P.bg })
-
 	hi("Directory", { fg = P.kw_decl, bg = P.bg })
 
+	local telescope_bg = "#232A2B"
+	local telescope_prompt_bg = "#1A1F20"
+	local telescope_selection_bg = "#2D3435"
+
+	hi("TelescopeBorder", { fg = telescope_bg, bg = telescope_bg })
+	hi("TelescopePromptBorder", { fg = telescope_prompt_bg, bg = telescope_prompt_bg })
+
+	hi("TelescopeResultsBorder", { fg = telescope_bg, bg = telescope_bg })
+	hi("TelescopePreviewBorder", { fg = telescope_bg, bg = telescope_bg })
+
+	hi("TelescopePromptNormal", { fg = P.fg, bg = telescope_prompt_bg })
+	hi("TelescopeResultsNormal", { fg = P.fg, bg = telescope_bg })
+	hi("TelescopePreviewNormal", { fg = P.fg, bg = telescope_bg })
+
+	hi("TelescopePromptTitle", { fg = P.fg, bg = P.accent, bold = true })
+	hi("TelescopeResultsTitle", { fg = P.fg, bg = P.accent, bold = true })
+	hi("TelescopePreviewTitle", { fg = P.fg, bg = P.accent, bold = true })
+
+	hi("TelescopeMatching", { fg = P.kw_ctrl, bold = true })
+	hi("TelescopeSelection", { fg = P.fg, bg = telescope_selection_bg, bold = true })
+
+	hi("TelescopeMatching", { fg = P.keyword, bold = true })
 	vim.g.colors_name = "slime"
 end
 

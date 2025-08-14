@@ -136,6 +136,7 @@ function M.setup(opts)
 	-- Neo-tree custom colors
 	hi("NeoTreeNormal", { fg = P.fg, bg = P.bg })
 	hi("NeoTreeNormalNC", { fg = P.fg, bg = P.bg })
+	hi("WinSeparator", { fg = P.line, bg = P.bg })
 
 	vim.g.colors_name = "slime"
 end

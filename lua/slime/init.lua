@@ -127,16 +127,18 @@ function M.setup(opts)
 	-- p00f/nvim-ts-rainbow
 	hi("TSRainbowRed", { fg = "#D8D29A" })
 	hi("TSRainbowYellow", { fg = "#D88F56" })
-	hi("TSRainbowBlue", { fg = "#E0BA7D" })
+	hi("TSRainbowBlue", { fg = "#6A9FB5" })
 	-- HiPhish/rainbow-delimiters.nvim
 	hi("RainbowDelimiterRed", { fg = "#D8D29A" })
 	hi("RainbowDelimiterYellow", { fg = "#D88F56" })
-	hi("RainbowDelimiterBlue", { fg = "#E0BA7D" })
+	hi("RainbowDelimiterBlue", { fg = "#6A9FB5" })
 
 	-- Neo-tree custom colors
-	hi("NeoTreeNormal", { fg = P.fg, bg = P.bg })
-	hi("NeoTreeNormalNC", { fg = P.fg, bg = P.bg })
-	hi("WinSeparator", { fg = P.line, bg = P.bg })
+	hi("NeoTreeDirectoryName", { fg = P.kw_decl, bg = P.bg, bold = true })
+	hi("NeoTreeDirectoryIcon", { fg = P.kw_decl, bg = P.bg })
+	hi("NeoTreeWinSeparator", { fg = P.line, bg = P.bg })
+
+	hi("Directory", { fg = P.kw_decl, bg = P.bg })
 
 	vim.g.colors_name = "slime"
 end

@@ -56,7 +56,7 @@ M.colors = vim.tbl_extend("force", base, semantic, plugin)
 -- Add computed colors
 M.colors.line_nr = utils.darken(base.bg, 0.2)
 M.colors.visual = utils.darken(base.selection, 0.1)
-M.colors.search = utils.alpha(semantic.accent1, 0.3)
+M.colors.search = utils.blend(semantic.accent1, base.bg, 0.3)
 
 -- Terminal colors (adjusted for light theme)
 M.terminal_colors = {

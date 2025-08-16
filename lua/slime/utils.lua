@@ -48,14 +48,6 @@ function M.blend(hex1, hex2, amount)
     return M.rgb_to_hex(rgb)
 end
 
--- Add alpha transparency to a color
-function M.alpha(hex, alpha)
-    if alpha == 1 then
-        return hex
-    end
-    return hex .. string.format("%02x", math.floor(alpha * 255))
-end
-
 -- Helper function to create highlight with conditional properties
 function M.highlight(group, spec, config)
     local hl = {}

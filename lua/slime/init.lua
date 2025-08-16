@@ -1,169 +1,93 @@
+-- Main slime colorscheme module
 local M = {}
 
-local function hi(g, spec)
-	vim.api.nvim_set_hl(0, g, spec)
+local config = require("slime.config")
+local utils = require("slime.utils")
+
+-- Load modules dynamically
+local function load_palette(variant)
+    local ok, palette = pcall(require, "slime.palettes." .. variant)
+    if not ok then
+        vim.notify("slime: Unknown variant '" .. variant .. "', falling back to 'dark'", vim.log.levels.WARN)
+        palette = require("slime.palettes.dark")
+    end
+    return palette
 end
-local function link(from, to)
-	vim.api.nvim_set_hl(0, from, { link = to })
+
+local function load_groups(colors, user_config)
+    local groups = {"editor", "syntax", "diagnostics", "treesitter", "lsp", "git", "search", "terminal"}
+
+    for _, group in ipairs(groups) do
+        local ok, module = pcall(require, "slime.groups." .. group)
+        if ok and module.setup then
+            local success, err = pcall(module.setup, colors, user_config)
+            if not success then
+                vim.notify("slime: Error loading group " .. group .. ": " .. err, vim.log.levels.WARN)
+            end
+        end
+    end
 end
-local function ts(fg, o)
-	o = o or {}
-	if fg then
-		o.fg = fg
-	end
-	return o
+
+local function load_languages(colors, user_config)
+    if not user_config.languages.auto_enable then
+        return
+    end
+
+    local languages = {"php", "javascript"}
+
+    for _, lang in ipairs(languages) do
+        if user_config.languages[lang] ~= false then
+            local ok, module = pcall(require, "slime.languages." .. lang)
+            if ok and module.setup then
+                local success, err = pcall(module.setup, colors, user_config)
+                if not success then
+                    vim.notify("slime: Error loading language " .. lang .. ": " .. err, vim.log.levels.WARN)
+                end
+            end
+        end
+    end
+end
+
+local function set_terminal_colors(colors)
+    if colors.terminal_colors then
+        for name, color in pairs(colors.terminal_colors) do
+            vim.g[name] = color
+        end
+    end
 end
 
 function M.setup(opts)
-	opts = opts or {}
-	local P = {
-		bg = "#1E2324",
-		fg = "#D3D7CF",
-		selection = "#2A2F30",
-		line = "#252B2C",
-		cursor = "#F5F5F5",
+    -- Setup configuration
+    local user_config = config.setup(opts)
 
-		kw_ctrl = "#D8D29A", -- if, for, foreach, return (incl. Blade directives)
-		kw_decl = "#D88F56", -- function, class, trait
-		func = "#E0BA7D", -- functions
-		method = "#E0BA7D", -- methods
-		property = "#BE9296", -- fields/properties
-		type = "#E6CE64", -- types/classes
-		string = "#8CAEC1",
-		number = "#B081B9",
-		comment = "#6E7573",
-		punct_op = "#CCD2BE",
+    -- Clear existing highlights
+    vim.cmd("highlight clear")
+    if vim.fn.exists("syntax_on") then
+        vim.cmd("syntax reset")
+    end
 
-		diag_err = "#B64E4E",
-		diag_warn = "#91B147",
-		diag_info = "#6A9FB5",
-		diag_hint = "#7B9C77",
-	}
+    -- Load palette for selected variant
+    local palette = load_palette(user_config.variant)
+    local colors = palette.colors
 
-	-- UI
-	hi("Normal", { fg = P.fg, bg = P.bg })
-	hi("Cursor", { fg = P.bg, bg = P.cursor })
-	hi("CursorLine", { bg = P.line })
-	hi("CursorLineNr", { fg = P.fg, bold = true })
-	hi("LineNr", { fg = "#808684", bg = P.bg })
-	hi("Visual", { bg = P.selection })
-	hi("SignColumn", { bg = P.bg })
-	hi("VertSplit", { fg = P.line, bg = P.bg })
-	hi("StatusLine", { fg = P.fg, bg = P.line })
-	hi("Pmenu", { fg = P.fg, bg = P.line })
-	hi("PmenuSel", { fg = P.bg, bg = P.fg })
+    -- Load all highlight groups
+    load_groups(colors, user_config)
 
-	-- Diagnostics
-	hi("DiagnosticError", { fg = P.diag_err })
-	hi("DiagnosticWarn", { fg = P.diag_warn })
-	hi("DiagnosticInfo", { fg = P.diag_info })
-	hi("DiagnosticHint", { fg = P.diag_hint })
-	link("DiagnosticUnderlineError", "SpellBad")
-	link("DiagnosticUnderlineWarn", "SpellCap")
-	link("DiagnosticUnderlineInfo", "SpellLocal")
-	link("DiagnosticUnderlineHint", "SpellRare")
+    -- Load language-specific highlights
+    load_languages(colors, user_config)
 
-	-- Tree-sitter (global)
-	hi("@comment", ts(P.comment, { italic = true }))
-	hi("@string", ts(P.string))
-	hi("@string.special", ts(P.string))
-	hi("@number", ts(P.number))
-	hi("@boolean", ts(P.number))
-	hi("@operator", ts(P.punct_op))
-	hi("@punctuation", ts(P.punct_op))
-	hi("@punctuation.bracket", ts(P.punct_op))
-	hi("@punctuation.delimiter", ts(P.punct_op))
-	-- highlight constants
-	hi("@constant", ts(P.string))
+    -- Load plugin-specific highlights
+    local plugins = require("slime.plugins")
+    plugins.setup(colors, user_config)
 
-	-- Keywords
-	hi("@keyword", ts(P.kw_ctrl))
-	hi("@keyword.conditional", ts(P.kw_ctrl))
-	hi("@keyword.repeat", ts(P.kw_ctrl))
-	hi("@keyword.return", ts(P.kw_ctrl))
-	hi("@keyword.function", ts(P.kw_decl))
-	hi("@keyword.type", ts(P.kw_decl)) -- class/trait/type-ish decls
+    -- Set terminal colors
+    set_terminal_colors(palette)
 
-	-- Idents
-	hi("@function", ts(P.func))
-	hi("@function.call", ts(P.func))
-	hi("@method", ts(P.method))
-	hi("@method.call", ts(P.method))
-	hi("@type", ts(P.type))
-	hi("@type.builtin", ts(P.type, { italic = true }))
-	hi("@property", ts(P.property))
-	hi("@field", ts(P.property))
-	hi("@variable", ts(P.number))
-	hi("@variable.parameter", ts(P.fg, { italic = true }))
-
-	-- LSP semantic tokens
-	link("@lsp.type.namespace", "@type")
-	link("@lsp.type.class", "@type")
-	link("@lsp.type.interface", "@type")
-	link("@lsp.type.enum", "@type")
-	link("@lsp.type.typeParameter", "@type")
-	link("@lsp.type.function", "@function")
-	link("@lsp.type.method", "@method")
-	link("@lsp.type.property", "@property")
-	link("@lsp.type.parameter", "@variable.parameter")
-
-	-- PHP/Blade specific tweaks
-	-- PHP
-	hi("@keyword.function.php", ts(P.kw_decl))
-	hi("@keyword.php", ts(P.kw_ctrl))
-	hi("@function.php", ts(P.func))
-	hi("@method.php", ts(P.method))
-	hi("@property.php", ts(P.property))
-	hi("@type.php", ts(P.type))
-	hi("@variable.parameter.php", ts(P.fg, { italic = true }))
-
-	-- -- Blade (treat directives like control keywords)
-	hi("@keyword.blade", ts(P.kw_ctrl))
-	hi("@keyword.directive.blade", ts(P.kw_ctrl, { bold = true }))
-	hi("@function.blade", ts(P.func))
-	hi("@method.blade", ts(P.method))
-	hi("@property.blade", ts(P.property))
-	hi("@string.blade", ts(P.string))
-
-	-- Rainbow brackets (support for multiple popular plugins)
-	-- p00f/nvim-ts-rainbow
-	hi("TSRainbowRed", { fg = "#D8D29A" })
-	hi("TSRainbowYellow", { fg = "#D88F56" })
-	hi("TSRainbowBlue", { fg = "#6A9FB5" })
-	-- HiPhish/rainbow-delimiters.nvim
-	hi("RainbowDelimiterRed", { fg = "#D8D29A" })
-	hi("RainbowDelimiterYellow", { fg = "#D88F56" })
-	hi("RainbowDelimiterBlue", { fg = "#6A9FB5" })
-
-	-- Neo-tree custom colors
-	hi("NeoTreeDirectoryName", { fg = P.kw_decl, bg = P.bg, bold = true })
-	hi("NeoTreeDirectoryIcon", { fg = P.kw_decl, bg = P.bg })
-	hi("NeoTreeWinSeparator", { fg = P.line, bg = P.bg })
-	hi("Directory", { fg = P.kw_decl, bg = P.bg })
-
-	local telescope_bg = "#232A2B"
-	local telescope_prompt_bg = "#1A1F20"
-	local telescope_selection_bg = "#2D3435"
-
-	hi("TelescopeBorder", { fg = telescope_bg, bg = telescope_bg })
-	hi("TelescopePromptBorder", { fg = telescope_prompt_bg, bg = telescope_prompt_bg })
-
-	hi("TelescopeResultsBorder", { fg = telescope_bg, bg = telescope_bg })
-	hi("TelescopePreviewBorder", { fg = telescope_bg, bg = telescope_bg })
-
-	hi("TelescopePromptNormal", { fg = P.fg, bg = telescope_prompt_bg })
-	hi("TelescopeResultsNormal", { fg = P.fg, bg = telescope_bg })
-	hi("TelescopePreviewNormal", { fg = P.fg, bg = telescope_bg })
-
-	hi("TelescopePromptTitle", { fg = P.fg, bg = P.accent, bold = true })
-	hi("TelescopeResultsTitle", { fg = P.fg, bg = P.accent, bold = true })
-	hi("TelescopePreviewTitle", { fg = P.fg, bg = P.accent, bold = true })
-
-	hi("TelescopeMatching", { fg = P.kw_ctrl, bold = true })
-	hi("TelescopeSelection", { fg = P.fg, bg = telescope_selection_bg, bold = true })
-
-	hi("TelescopeMatching", { fg = P.keyword, bold = true })
-	vim.g.colors_name = "slime"
+    -- Set colorscheme name
+    vim.g.colors_name = "slime"
 end
+
+-- Expose config for external access
+M.config = config
 
 return M

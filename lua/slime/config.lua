@@ -1,7 +1,5 @@
--- Configuration module for slime colorscheme
 local M = {}
 
--- Default configuration
 M.defaults = {
     variant = "dark",
     transparent = false,

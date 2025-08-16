@@ -1,9 +1,7 @@
--- Dark variant palette for slime colorscheme
 local utils = require("slime.utils")
 
 local M = {}
 
--- Base colors
 local base = {
     bg = "#1E2324",
     fg = "#D3D7CF",
@@ -13,47 +11,39 @@ local base = {
     comment = "#6E7573"
 }
 
--- Semantic colors
 local semantic = {
-    -- Language constructs
     keyword = "#D8D29A", -- Control flow keywords
     declaration = "#D88F56", -- Function/class declarations
-    func = "#E0BA7D", -- Functions
-    method = "#E0BA7D", -- Methods
-    property = "#BE9296", -- Fields/properties
-    type = "#E6CE64", -- Types/classes
-    string = "#8CAEC1", -- Strings
-    number = "#B081B9", -- Numbers
-    operator = "#CCD2BE", -- Operators and punctuation
+    func = "#E0BA7D",
+    method = "#E0BA7D",
+    property = "#BE9296",
+    type = "#E6CE64",
+    string = "#8CAEC1",
+    number = "#B081B9",
+    operator = "#CCD2BE",
 
-    -- Diagnostic colors
     error = "#B64E4E",
     warning = "#91B147",
     info = "#6A9FB5",
     hint = "#7B9C77",
 
-    -- Git colors
     git_add = "#91B147",
     git_change = "#D8D29A",
     git_delete = "#B64E4E",
 
-    -- UI accents
     accent1 = "#D8D29A",
     accent2 = "#D88F56",
     accent3 = "#6A9FB5"
 }
 
--- Plugin-specific colors
 local plugin = {
     telescope_bg = "#232A2B",
     telescope_prompt_bg = "#1A1F20",
     telescope_selection_bg = "#2D3435"
 }
 
--- Generate full palette
 M.colors = vim.tbl_extend("force", base, semantic, plugin)
 
--- Add computed colors
 M.colors.line_nr = utils.lighten(base.bg, 0.3)
 M.colors.visual = utils.lighten(base.selection, 0.1)
 M.colors.search = utils.blend(semantic.accent1, base.bg, 0.3)

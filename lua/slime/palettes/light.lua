@@ -1,9 +1,7 @@
--- Light variant palette for slime colorscheme
 local utils = require("slime.utils")
 
 local M = {}
 
--- Base colors (inverted from dark)
 local base = {
     bg = "#F5F5F5",
     fg = "#2C2E2F",
@@ -13,47 +11,39 @@ local base = {
     comment = "#91928C"
 }
 
--- Semantic colors (adjusted for light theme)
 local semantic = {
-    -- Language constructs
-    keyword = "#8B7D1A", -- Darker version of dark theme keyword
-    declaration = "#B8621E", -- Darker version of dark theme declaration
-    func = "#C89A4D", -- Darker version of dark theme func
-    method = "#C89A4D", -- Darker version of dark theme method
-    property = "#8E5A5E", -- Darker version of dark theme property
-    type = "#B8A434", -- Darker version of dark theme type
-    string = "#4A7B91", -- Darker version of dark theme string
-    number = "#8A5189", -- Darker version of dark theme number
-    operator = "#9CA28E", -- Darker version of dark theme operator
+    keyword = "#8B7D1A", -- Darker version for light theme
+    declaration = "#B8621E",
+    func = "#C89A4D",
+    method = "#C89A4D",
+    property = "#8E5A5E",
+    type = "#B8A434",
+    string = "#4A7B91",
+    number = "#8A5189",
+    operator = "#9CA28E",
 
-    -- Diagnostic colors
     error = "#C62E2E",
     warning = "#7B8F37",
     info = "#4A7B95",
     hint = "#5B7C57",
 
-    -- Git colors
     git_add = "#7B8F37",
     git_change = "#8B7D1A",
     git_delete = "#C62E2E",
 
-    -- UI accents
     accent1 = "#8B7D1A",
     accent2 = "#B8621E",
     accent3 = "#4A7B95"
 }
 
--- Plugin-specific colors
 local plugin = {
     telescope_bg = "#EAEDEF",
     telescope_prompt_bg = "#F0F0F0",
     telescope_selection_bg = "#D5DADB"
 }
 
--- Generate full palette
 M.colors = vim.tbl_extend("force", base, semantic, plugin)
 
--- Add computed colors
 M.colors.line_nr = utils.darken(base.bg, 0.2)
 M.colors.visual = utils.darken(base.selection, 0.1)
 M.colors.search = utils.blend(semantic.accent1, base.bg, 0.3)

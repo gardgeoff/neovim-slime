@@ -57,7 +57,6 @@ local function set_terminal_colors(colors)
 end
 
 function M.setup(opts)
-    -- Setup configuration
     local user_config = config.setup(opts)
 
     -- Clear existing highlights
@@ -66,7 +65,6 @@ function M.setup(opts)
         vim.cmd("syntax reset")
     end
 
-    -- Load palette for selected variant
     local palette = load_palette(user_config.variant)
     local colors = palette.colors
 

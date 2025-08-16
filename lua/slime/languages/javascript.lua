@@ -1,4 +1,3 @@
--- JavaScript/TypeScript language highlights for slime colorscheme
 local utils = require("slime.utils")
 
 local M = {}

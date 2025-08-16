@@ -1,7 +1,5 @@
--- Color utilities for slime colorscheme
 local M = {}
 
--- Convert hex to RGB
 function M.hex_to_rgb(hex)
     hex = hex:gsub("#", "")
     return {
@@ -11,12 +9,10 @@ function M.hex_to_rgb(hex)
     }
 end
 
--- Convert RGB to hex
 function M.rgb_to_hex(rgb)
     return string.format("#%02x%02x%02x", rgb.r, rgb.g, rgb.b)
 end
 
--- Darken a color by percentage (0-1)
 function M.darken(hex, amount)
     local rgb = M.hex_to_rgb(hex)
     rgb.r = math.max(0, math.floor(rgb.r * (1 - amount)))
@@ -25,7 +21,6 @@ function M.darken(hex, amount)
     return M.rgb_to_hex(rgb)
 end
 
--- Lighten a color by percentage (0-1)
 function M.lighten(hex, amount)
     local rgb = M.hex_to_rgb(hex)
     rgb.r = math.min(255, math.floor(rgb.r + (255 - rgb.r) * amount))
@@ -34,7 +29,7 @@ function M.lighten(hex, amount)
     return M.rgb_to_hex(rgb)
 end
 
--- Blend two colors by amount (0-1, where 0 is color1 and 1 is color2)
+-- amount: 0-1, where 0 is color1 and 1 is color2
 function M.blend(hex1, hex2, amount)
     local rgb1 = M.hex_to_rgb(hex1)
     local rgb2 = M.hex_to_rgb(hex2)
@@ -48,21 +43,17 @@ function M.blend(hex1, hex2, amount)
     return M.rgb_to_hex(rgb)
 end
 
--- Helper function to create highlight with conditional properties
 function M.highlight(group, spec, config)
     local hl = {}
 
-    -- Copy base spec
     for k, v in pairs(spec) do
         hl[k] = v
     end
 
-    -- Apply transparency
     if config.transparent and (group:match("^Normal") or group:match("Background")) then
         hl.bg = "NONE"
     end
 
-    -- Apply italic settings
     if config.italic_comments and group:match("Comment") then
         hl.italic = true
     end
@@ -71,7 +62,6 @@ function M.highlight(group, spec, config)
         hl.italic = true
     end
 
-    -- Apply bold settings
     if config.bold_functions and (group:match("Function") or group:match("Method")) then
         hl.bold = true
     end
@@ -79,27 +69,23 @@ function M.highlight(group, spec, config)
     vim.api.nvim_set_hl(0, group, hl)
 end
 
--- Helper function to create links
 function M.link(from, to)
     vim.api.nvim_set_hl(0, from, {
         link = to
     })
 end
 
--- Check if a plugin is loaded
 function M.plugin_loaded(plugin_name)
-    -- Check if plugin is loaded via packer/lazy/etc
     local ok, _ = pcall(require, plugin_name)
     if ok then
         return true
     end
 
-    -- Check if plugin exists in runtimepath
     if vim.fn.exists("*" .. plugin_name) == 1 then
         return true
     end
 
-    -- Check common plugin patterns
+    -- Check common plugin patterns for better compatibility
     local patterns = {plugin_name, plugin_name .. ".nvim", "nvim-" .. plugin_name}
 
     for _, pattern in ipairs(patterns) do
